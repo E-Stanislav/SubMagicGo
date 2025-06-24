@@ -3,34 +3,23 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// App struct
 type App struct {
 	ctx context.Context
 }
 
-// NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
-}
-
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+	log.Println("[startup] Приложение запущено")
 }
 
 var whisperModels = map[string]string{
@@ -38,6 +27,16 @@ var whisperModels = map[string]string{
 	"small":  "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin",
 	"medium": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin",
 	"large":  "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large.bin",
+}
+
+func (a *App) OpenSettingsWindow() {
+	log.Println("[OpenSettingsWindow] Открытие окна настроек Whisper")
+	runtime.NewWindow(a.ctx, runtime.NewWindowOptions{
+		Title:  "Whisper Settings",
+		Width:  500,
+		Height: 600,
+		URL:    "/settings.html",
+	})
 }
 
 func (a *App) ListModels() ([]map[string]interface{}, error) {

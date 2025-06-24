@@ -1,170 +1,522 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SubMagicGo Video Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SubMagicGo — Video Player</title>
+    
+    <!-- Шрифты и иконки -->
+    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
     <style>
+        /* RESET */
+        *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+        html, body { height:100%; min-width:720px; min-height:720px; }
+        button { font:inherit; }
+
+        /* DESIGN TOKENS */
         :root {
-            --main-bg: #181c20;
-            --panel-bg: #23272b;
-            --accent: #4fa3ff;
-            --accent-hover: #3578c6;
-            --text: #fff;
-            --text-muted: #aaa;
-            --dropzone-bg: #23272b;
-            --dropzone-border: #4fa3ff;
-            --dropzone-shadow: 0 4px 32px #4fa3ff33;
-            --radius: 18px;
-            --transition: 0.25s cubic-bezier(.4,0,.2,1);
+            --bg: #f7f7f7;
+            --surface: #ffffff;
+            --surface-alt: #ececec;
+            --primary: #4fa3ff;
+            --primary-hover: #3578c6;
+            --danger: #e74c3c;
+            --danger-hover: #c0392b;
+            --text: #222222;
+            --text-muted: #6b7280;
+            --border: #dadada;
+            --radius: 12px;
+            --shadow-sm: 0 2px 12px #0001;
+            --shadow-md: 0 4px 18px #0002;
+            --transition: .24s cubic-bezier(.4,0,.2,1);
         }
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: var(--main-bg);
-            color: var(--text);
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1f2937;
+                --surface: #374151;
+                --surface-alt: #4b5563;
+                --primary: #60a5fa;
+                --primary-hover: #3b82f6;
+                --danger: #f87171;
+                --danger-hover: #ef4444;
+                --text: #f3f4f6;
+                --text-muted: #9ca3af;
+                --border: #4b5563;
+                --shadow-sm: 0 2px 12px #0005;
+                --shadow-md: 0 4px 18px #0006;
+            }
+        }
+
+        /* LAYOUT */
+        body {
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 700px;
-            margin: 40px auto;
-            padding: 32px 20px 24px 20px;
-            background: var(--panel-bg);
-            border-radius: var(--radius);
-            box-shadow: 0 4px 32px #0005;
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            align-items: stretch;
-            min-height: 70vh;
         }
-        h1 {
-            text-align: center;
-            font-size: 2.2rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin: 0 0 10px 0;
-            color: var(--accent);
-            text-shadow: 0 2px 8px #0003;
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
         }
-        .dropzone {
-            border: 2.5px dashed var(--dropzone-border);
-            border-radius: var(--radius);
-            background: var(--dropzone-bg);
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin-inline: auto;
+            padding: clamp(1rem, 2vw, 2rem);
+        }
+
+        /* Components */
+        .menu-btn {
+            background: var(--surface-alt);
+            border: none;
+            border-radius: var(--radius) var(--radius) 0 0;
+            padding: .5rem 1.25rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
-            padding: 38px 10px;
-            text-align: center;
-            margin-bottom: 0;
-            font-size: 1.1rem;
-            transition: border-color var(--transition), color var(--transition), box-shadow var(--transition), background var(--transition);
+            font-weight: 500;
             cursor: pointer;
-            box-shadow: none;
-            outline: none;
+            transition: background var(--transition), color var(--transition);
+        }
+        .menu-btn.active {
+            background: var(--surface);
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .dropzone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 100%;
+            min-height: 220px;
+            padding: 4rem 1rem;
+            text-align: center;
+            background: var(--surface);
+            border: 2.5px dashed var(--border);
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            transition: all var(--transition);
+            cursor: pointer;
             user-select: none;
         }
         .dropzone.dragover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: #1a2330;
-            box-shadow: var(--dropzone-shadow);
+            border-color: var(--primary);
+            color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, transparent);
+            box-shadow: var(--shadow-md);
         }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 18px;
-            margin: 0 0 10px 0;
-        }
-        .btn {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 28px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 8px #0002;
-            transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
-            outline: none;
-            letter-spacing: 0.5px;
-        }
-        .btn:hover, .btn:focus {
-            background: var(--accent-hover);
-            box-shadow: 0 4px 16px #4fa3ff44;
-            transform: translateY(-2px) scale(1.04);
-        }
+
         video {
             width: 100%;
-            border-radius: 12px;
+            height: auto;
+            border-radius: var(--radius);
             background: #000;
-            box-shadow: 0 2px 16px #0005;
-            min-height: 260px;
-            max-height: 60vh;
-            outline: none;
-            transition: box-shadow var(--transition);
         }
-        @media (max-width: 600px) {
-            .container { padding: 10px 2vw; }
-            h1 { font-size: 1.3rem; }
-            .btn { padding: 10px 12px; font-size: 1rem; }
-            video { min-height: 120px; }
+
+        .controls {
+            display: grid;
+            grid-auto-flow: column;
+            gap: clamp(.5rem, 1.5vw, 1.25rem);
+            justify-content: center;
+            margin-top: 2rem;
+            width: 100%;
+        }
+        @media (max-width: 700px) {
+            .controls {
+                grid-auto-flow: row;
+                grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+            }
+        }
+        .btn {
+            appearance: none;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            padding: .9rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: .3px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        }
+        .btn:hover, .btn:focus-visible {
+            background: var(--primary-hover);
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: var(--shadow-md);
+        }
+        .btn--danger {
+            background: var(--danger);
+        }
+        .btn--danger:hover, .btn--danger:focus-visible {
+            background: var(--danger-hover);
+        }
+
+        .sr-only {
+            position: absolute !important;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* --- Whisper Settings Modern UI --- */
+        .whisper-settings-root {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: 22px;
+            box-shadow: var(--shadow-md);
+            padding: 2.5rem 1.5rem 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 420px;
+        }
+        .whisper-settings-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 2.2rem;
+            letter-spacing: -1px;
+            text-align: center;
+        }
+        .whisper-models-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .whisper-model-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface-alt);
+            border-radius: 18px;
+            box-shadow: 0 2px 12px #0001;
+            padding: 1.1rem 1.5rem;
+            transition: box-shadow 0.18s, background 0.18s;
+            position: relative;
+        }
+        .whisper-model-card:hover {
+            box-shadow: 0 6px 24px #0002;
+            background: color-mix(in srgb, var(--primary) 7%, var(--surface-alt));
+        }
+        .whisper-model-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .whisper-model-icon {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+        .whisper-model-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            min-width: 70px;
+            line-height: 1.2;
+        }
+        .whisper-model-status {
+            font-size: 0.97rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+        .whisper-model-status.downloaded {
+            color: var(--primary);
+        }
+        .whisper-radio {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
+        }
+        .whisper-model-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .whisper-btn {
+            background: var(--primary);
+            color: #fff;
+            font-size: 1.08rem;
+            font-weight: 700;
+            border-radius: 14px;
+            padding: 0.6em 1.7em;
+            box-shadow: 0 2px 12px #0001;
+            border: none;
+            cursor: pointer;
+            transition: background 0.18s, box-shadow 0.18s;
+            outline: none;
+        }
+        .whisper-btn:disabled {
+            background: #b3d4fc;
+            color: #fff;
+            cursor: default;
+        }
+        .whisper-btn:not(:disabled):hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 18px #0002;
+        }
+        .whisper-progress {
+            background: #4fa3ff33;
+            color: var(--primary);
+            font-size: 1em;
+            border-radius: 8px;
+            width: 0;
+            height: 22px;
+            line-height: 22px;
+            transition: width 0.2s;
+            display: none;
+            text-align: center;
+            margin-left: 10px;
+            min-width: 60px;
+        }
+        .whisper-empty {
+            color: var(--text-muted);
+            font-size: 1.13rem;
+            text-align: center;
+            margin-top: 2.5rem;
+        }
+        @media (max-width: 700px) {
+            .whisper-settings-root { padding: 1.2rem 0.2rem; }
+            .whisper-model-card { flex-direction: column; align-items: flex-start; gap: 10px; padding: 1rem 0.7rem; }
         }
     </style>
 </head>
 <body>
+<header>
+    <nav>
+        <button class="menu-btn active" type="button">Редактор</button>
+        <button class="menu-btn" type="button">Настройки</button>
+    </nav>
+</header>
+<main>
     <div class="container">
-        <h1>SubMagicGo Video Player</h1>
-        <div id="dropzone" class="dropzone">Перетащите видеофайл сюда или выберите файл</div>
-        <input type="file" id="fileInput" accept="video/*" style="display:none" />
-        <div class="controls">
-            <button id="openBtn" class="btn">Открыть</button>
-            <button id="playBtn" class="btn">▶</button>
-            <button id="pauseBtn" class="btn">⏸</button>
-        </div>
-        <video id="video" controls tabindex="0"></video>
+        <section id="editorPanel">
+            <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Перетащите файл или нажмите для выбора">
+                <span>Перетащите видеофайл сюда<br>или нажмите, чтобы выбрать</span>
+            </div>
+            <input id="fileInput" type="file" accept="video/*" class="sr-only"/>
+            <video id="video" controls style="display:none;" tabindex="0"></video>
+            <p id="videoTitle" style="display:none; margin-top:1rem; font-weight:500; text-align:center;"></p>
+            <div id="controls" class="controls" style="display:none;">
+                <button id="openBtn" class="btn" type="button">Открыть</button>
+                <button id="playPauseBtn" class="btn" type="button">▶</button>
+                <button id="subBtn" class="btn" type="button">Создать субтитры</button>
+                <button id="exportBtn" class="btn" type="button" style="display:none;">Экспорт SRT</button>
+                <button id="closeMediaBtn" class="btn btn--danger" type="button">Закрыть медиа</button>
+            </div>
+        </section>
+        <section id="settingsPanel" style="display:none; background:none; box-shadow:none; padding:0; max-width:none;">
+            <div class="whisper-settings-root">
+                <div class="whisper-settings-title">Whisper: управление моделями</div>
+                <div id="modelsList" class="whisper-models-list"></div>
+                <div id="emptyList" class="whisper-empty" style="display:none;"></div>
+            </div>
+        </section>
     </div>
-    <script>
-        const video = document.getElementById('video');
-        const openBtn = document.getElementById('openBtn');
-        const playBtn = document.getElementById('playBtn');
-        const pauseBtn = document.getElementById('pauseBtn');
-        const fileInput = document.getElementById('fileInput');
-        const dropzone = document.getElementById('dropzone');
+</main>
+<script>
+    const $ = id => document.getElementById(id);
+    const video = $("video"), openBtn = $("openBtn"), playPauseBtn = $("playPauseBtn"),
+          fileInput = $("fileInput"), dropzone = $("dropzone"), subBtn = $("subBtn"),
+          exportBtn = $("exportBtn"), controls = $("controls"), closeBtn = $("closeMediaBtn"),
+          videoTitle = $("videoTitle");
+    let selectedModel = localStorage.getItem("whisperModel") || "base", downloadProgress = {}, currentFilePath = null;
+    const show = el => el.style.display = "", hide = el => el.style.display = "none";
+    playPauseBtn.addEventListener("click", () => video.paused ? video.play() : video.pause());
+    video.addEventListener("play", () => playPauseBtn.textContent = "⏸");
+    video.addEventListener("pause", () => playPauseBtn.textContent = "▶");
+    openBtn.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", e => e.target.files[0] && loadVideo(e.target.files[0]));
+    function loadVideo(file) {
+        currentFilePath = file.path || null;
+        video.src = URL.createObjectURL(file);
+        video.play();
+        videoTitle.textContent = file.name;
+        show(video); show(videoTitle); show(controls); hide(dropzone);
+    }
+    ["dragenter","dragover"].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add("dragover"); }));
+    ["dragleave","drop"].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove("dragover"); }));
+    dropzone.addEventListener("drop", e => e.dataTransfer.files[0] && loadVideo(e.dataTransfer.files[0]));
+    dropzone.addEventListener("click", () => fileInput.click());
+    subBtn.addEventListener("click", async () => {
+        if (!currentFilePath) { alert("Сначала выберите видео!"); return; }
+        subBtn.disabled = true; subBtn.textContent = "Генерация...";
+        try { await window.go.main.App.GenerateSubtitles(currentFilePath, "ru", selectedModel); show(exportBtn); }
+        catch (err) { alert("Ошибка генерации субтитров: " + err); }
+        subBtn.disabled = false; subBtn.textContent = "Создать субтитры";
+    });
+    exportBtn.addEventListener("click", () => {
+        if (!currentFilePath) return;
+        const blob = new Blob([currentFilePath], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "subtitles.srt";
+        a.click();
+    });
+    closeBtn.addEventListener("click", () => {
+        video.pause(); video.removeAttribute("src"); video.load();
+        hide(video); hide(videoTitle); hide(exportBtn); hide(controls);
+        dropzone.querySelector("span").innerHTML = "Перетащите видеофайл сюда<br>или нажмите, чтобы выбрать";
+        show(dropzone);
+        currentFilePath = null; fileInput.value = "";
+    });
+    window.runtime?.EventsOn?.("modelDownloadProgress", data => {
+        downloadProgress[data.name] = data.percent;
+        const bar = document.getElementById(`progress_${data.name}`), btn = document.getElementById(`dl_${data.name}`);
+        if (bar) { bar.style.width = data.percent + "%"; bar.textContent = data.percent + "%"; }
+        if (data.percent >= 100 && btn) { btn.textContent = "✓"; btn.disabled = true; bar.style.display = "none"; }
+    });
 
-        openBtn.onclick = () => fileInput.click();
-        fileInput.onchange = e => {
-            const file = e.target.files[0];
-            if (file) loadVideo(file);
-        };
+    // --- Переключение вкладок ---
+    const editorTab = document.querySelector('.menu-btn.active');
+    const settingsTab = document.querySelectorAll('.menu-btn')[1];
+    const editorPanel = document.getElementById('editorPanel');
+    const settingsPanel = document.getElementById('settingsPanel');
+    function showEditor() {
+        editorPanel.style.display = '';
+        settingsPanel.style.display = 'none';
+        editorTab.classList.add('active');
+        settingsTab.classList.remove('active');
+    }
+    function showSettings() {
+        editorPanel.style.display = 'none';
+        settingsPanel.style.display = '';
+        editorTab.classList.remove('active');
+        settingsTab.classList.add('active');
+        loadModels();
+    }
+    editorTab.addEventListener('click', showEditor);
+    settingsTab.addEventListener('click', showSettings);
 
-        playBtn.onclick = () => video.play();
-        pauseBtn.onclick = () => video.pause();
-
-        function loadVideo(file) {
-            const url = URL.createObjectURL(file);
-            video.src = url;
-            video.play();
-            dropzone.textContent = file.name;
+    // --- Whisper Models Management (из settings.html, обновлённый макет) ---
+    let downloadingModel = null;
+    let cancelControllers = {};
+    async function loadModels() {
+        const modelsList = document.getElementById('modelsList');
+        const emptyList = document.getElementById('emptyList');
+        modelsList.innerHTML = '';
+        emptyList.style.display = 'none';
+        try {
+            const models = await window.go.main.App.ListModels();
+            if (!Array.isArray(models) || models.length === 0) {
+                emptyList.style.display = 'block';
+                emptyList.textContent = 'Нет доступных моделей Whisper';
+                return;
+            }
+            let selectedModel = localStorage.getItem('whisperModel') || models[0].name;
+            models.forEach(model => {
+                const card = document.createElement('div');
+                card.className = 'whisper-model-card';
+                const info = document.createElement('div');
+                info.className = 'whisper-model-info';
+                const icon = document.createElement('span');
+                icon.className = 'whisper-model-icon';
+                icon.innerHTML = `<svg fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><rect x='3' y='7' width='18' height='13' rx='3'/><path d='M16 3v4M8 3v4'/></svg>`;
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'model';
+                radio.value = model.name;
+                radio.checked = selectedModel === model.name;
+                radio.className = 'whisper-radio';
+                radio.onchange = () => {
+                    localStorage.setItem('whisperModel', model.name);
+                    loadModels();
+                };
+                const name = document.createElement('span');
+                name.textContent = model.name;
+                name.className = 'whisper-model-name';
+                const status = document.createElement('span');
+                status.className = 'whisper-model-status ' + (model.local ? 'downloaded' : '');
+                status.innerHTML = model.local
+                    ? `(скачано${model.size ? ', ' + (model.size/1024/1024).toFixed(0) + ' MB' : ''})`
+                    : '(не скачано)';
+                info.appendChild(icon);
+                info.appendChild(radio);
+                info.appendChild(name);
+                info.appendChild(status);
+                const actions = document.createElement('div');
+                actions.className = 'whisper-model-actions';
+                const btn = document.createElement('button');
+                btn.className = 'whisper-btn';
+                btn.textContent = model.local ? '✓' : (downloadingModel === model.name ? 'Отмена' : 'Скачать');
+                btn.disabled = !!model.local;
+                btn.id = `dl_${model.name}`;
+                const progress = document.createElement('div');
+                progress.id = `progress_${model.name}`;
+                progress.className = 'whisper-progress';
+                if (!model.local) {
+                    if (downloadingModel === model.name) {
+                        btn.onclick = async () => {
+                            // Попытка отмены через Go, если реализовано
+                            if (window.go.main.App.CancelDownloadModel) {
+                                try { await window.go.main.App.CancelDownloadModel(model.name); } catch(e){}
+                            }
+                            downloadingModel = null;
+                            loadModels();
+                        };
+                    } else {
+                        btn.onclick = async () => {
+                            btn.textContent = 'Отмена';
+                            downloadingModel = model.name;
+                            progress.style.display = 'block';
+                            progress.style.width = '0%';
+                            progress.textContent = '0%';
+                            try {
+                                await window.go.main.App.DownloadModel(model.name);
+                            } finally {
+                                downloadingModel = null;
+                                loadModels();
+                            }
+                        };
+                    }
+                }
+                actions.appendChild(btn);
+                actions.appendChild(progress);
+                card.appendChild(info);
+                card.appendChild(actions);
+                modelsList.appendChild(card);
+            });
+        } catch (err) {
+            emptyList.style.display = 'block';
+            emptyList.textContent = 'Ошибка загрузки моделей Whisper';
+            console.error('Ошибка загрузки моделей Whisper:', err);
         }
-
-        // Drag and drop
-        dropzone.ondragover = e => {
-            e.preventDefault();
-            dropzone.classList.add('dragover');
-        };
-        dropzone.ondragleave = e => {
-            e.preventDefault();
-            dropzone.classList.remove('dragover');
-        };
-        dropzone.ondrop = e => {
-            e.preventDefault();
-            dropzone.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) loadVideo(file);
-        };
-        dropzone.onclick = () => fileInput.click();
-    </script>
+    }
+    // --- Прогресс загрузки ---
+    window.runtime && window.runtime.EventsOn && window.runtime.EventsOn("modelDownloadProgress", data => {
+        const progress = document.getElementById(`progress_${data.name}`);
+        const btn = document.getElementById(`dl_${data.name}`);
+        if (progress) {
+            progress.style.display = 'block';
+            progress.style.width = data.percent + '%';
+            progress.textContent = data.percent + '%';
+            if (data.percent >= 100 && btn) {
+                btn.textContent = '✓';
+                btn.disabled = true;
+                progress.style.display = 'none';
+            }
+        }
+    });
+</script>
 </body>
 </html>
