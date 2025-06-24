@@ -469,8 +469,9 @@
         emptyListDiv.style.display = 'none';
         try {
             const all = await window.go.main.App.ListModels();
-            availableModels = all.filter(m => !m.local);
-            downloadedModels = all.filter(m => m.local);
+            // Сортируем по expectedSize (байты)
+            availableModels = all.filter(m => !m.local).sort((a, b) => (a.expectedSize||a.size||0) - (b.expectedSize||b.size||0));
+            downloadedModels = all.filter(m => m.local).sort((a, b) => (a.expectedSize||a.size||0) - (b.expectedSize||b.size||0));
             // --- Render download block ---
             if (availableModels.length === 0) {
                 modelSelect.disabled = true;
@@ -482,7 +483,7 @@
                 availableModels.forEach((m, i) => {
                     const opt = document.createElement('option');
                     opt.value = m.name;
-                    opt.textContent = `${m.name} (${(m.size/1024/1024).toFixed(0)} MB)`;
+                    opt.textContent = `${m.name} (${formatModelSize(m.expectedSize||m.size)})`;
                     modelSelect.appendChild(opt);
                 });
                 modelSelect.value = availableModels[0].name;
@@ -540,7 +541,7 @@
                 name.className = 'whisper-model-name';
                 const status = document.createElement('span');
                 status.className = 'whisper-model-status downloaded';
-                status.innerHTML = `${(model.size/1024/1024).toFixed(0)} MB`;
+                status.innerHTML = formatModelSize(model.expectedSize||model.size);
                 info.appendChild(icon);
                 info.appendChild(radio);
                 info.appendChild(name);
@@ -567,6 +568,12 @@
             emptyListDiv.style.display = 'block';
             emptyListDiv.textContent = 'Ошибка загрузки моделей Whisper';
         }
+    }
+    // Форматирование размера модели (MB/GB)
+    function formatModelSize(bytes) {
+        if (!bytes) return '';
+        if (bytes >= 1024*1024*1024) return (bytes/1024/1024/1024).toFixed(1) + ' GB';
+        return (bytes/1024/1024).toFixed(0) + ' MB';
     }
     // --- Прогресс загрузки ---
     window.runtime && window.runtime.EventsOn && window.runtime.EventsOn("modelDownloadProgress", data => {
