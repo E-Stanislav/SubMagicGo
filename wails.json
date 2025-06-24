@@ -1,0 +1,14 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "SubMagicGo",
+  "outputfilename": "SubMagicGo",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "frontend:dev:open": false,
+  "author": {
+    "name": "E-Stanislav",
+    "email": "efimooov.stanislav@gmail.com"
+  }
+}
