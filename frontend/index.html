@@ -174,106 +174,62 @@
         }
 
         /* --- Whisper Settings Modern UI --- */
-        .whisper-settings-root {
+        .whisper-section {
             width: 100%;
             max-width: 520px;
-            margin: 0 auto;
+            margin: 0 auto 2.2rem auto;
             background: var(--surface);
-            border-radius: 22px;
-            box-shadow: var(--shadow-md);
-            padding: 2.5rem 1.5rem 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 420px;
-        }
-        .whisper-settings-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 2.2rem;
-            letter-spacing: -1px;
-            text-align: center;
-        }
-        .whisper-models-list {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
-        }
-        .whisper-model-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--surface-alt);
             border-radius: 18px;
-            box-shadow: 0 2px 12px #0001;
-            padding: 1.1rem 1.5rem;
-            transition: box-shadow 0.18s, background 0.18s;
-            position: relative;
+            box-shadow: var(--shadow-md);
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
         }
-        .whisper-model-card:hover {
-            box-shadow: 0 6px 24px #0002;
-            background: color-mix(in srgb, var(--primary) 7%, var(--surface-alt));
+        .whisper-section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.5px;
         }
-        .whisper-model-info {
+        .whisper-download-row {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 14px;
+            margin-bottom: 0.5rem;
         }
-        .whisper-model-icon {
-            width: 32px;
-            height: 32px;
-            color: var(--primary);
-            flex-shrink: 0;
+        .whisper-download-row label {
+            font-size: 1.08rem;
+            font-weight: 500;
         }
-        .whisper-model-name {
-            font-size: 1rem;
-            font-weight: 600;
+        .whisper-download-row select {
+            background: var(--surface-alt);
             color: var(--text);
-            min-width: 70px;
-            line-height: 1.2;
+            border: none;
+            border-radius: 7px;
+            padding: 7px 16px;
+            font-size: 1.08rem;
+            outline: none;
         }
-        .whisper-model-status {
-            font-size: 0.97rem;
-            font-weight: 400;
-            color: var(--text-muted);
-            margin-left: 4px;
-        }
-        .whisper-model-status.downloaded {
-            color: var(--primary);
-        }
-        .whisper-radio {
-            width: 22px;
-            height: 22px;
-            accent-color: var(--primary);
-        }
-        .whisper-model-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .whisper-btn {
+        .whisper-download-btn {
             background: var(--primary);
             color: #fff;
             font-size: 1.08rem;
             font-weight: 700;
-            border-radius: 14px;
+            border-radius: 12px;
             padding: 0.6em 1.7em;
-            box-shadow: 0 2px 12px #0001;
             border: none;
             cursor: pointer;
-            transition: background 0.18s, box-shadow 0.18s;
-            outline: none;
+            transition: background 0.18s;
         }
-        .whisper-btn:disabled {
+        .whisper-download-btn:disabled {
             background: #b3d4fc;
             color: #fff;
             cursor: default;
         }
-        .whisper-btn:not(:disabled):hover {
+        .whisper-download-btn:not(:disabled):hover {
             background: var(--primary-hover);
-            box-shadow: 0 4px 18px #0002;
         }
         .whisper-progress {
             background: #4fa3ff33;
@@ -289,15 +245,92 @@
             margin-left: 10px;
             min-width: 60px;
         }
+        .whisper-divider {
+            border: none;
+            border-top: 2px solid var(--surface-alt);
+            margin: 2.5rem 0 2rem 0;
+        }
+        .whisper-models-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+        }
+        .whisper-model-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface-alt);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px #0001;
+            padding: 0.9rem 1.2rem;
+            transition: box-shadow 0.18s, background 0.18s;
+            position: relative;
+        }
+        .whisper-model-card:hover {
+            box-shadow: 0 6px 24px #0002;
+            background: color-mix(in srgb, var(--primary) 7%, var(--surface-alt));
+        }
+        .whisper-model-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .whisper-model-icon {
+            width: 26px;
+            height: 26px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+        .whisper-model-name {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--text);
+            min-width: 60px;
+        }
+        .whisper-model-status {
+            font-size: 0.93rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+        .whisper-model-status.downloaded {
+            color: var(--primary);
+        }
+        .whisper-radio {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+        .whisper-model-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .whisper-btn-delete {
+            background: #e0e7ef;
+            color: #c0392b;
+            font-size: 0.98rem;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.4em 1.1em;
+            border: none;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s;
+        }
+        .whisper-btn-delete:hover {
+            background: #fbeaea;
+            color: #a8231a;
+        }
         .whisper-empty {
             color: var(--text-muted);
-            font-size: 1.13rem;
+            font-size: 1.08rem;
             text-align: center;
-            margin-top: 2.5rem;
+            margin-top: 1.5rem;
         }
         @media (max-width: 700px) {
-            .whisper-settings-root { padding: 1.2rem 0.2rem; }
-            .whisper-model-card { flex-direction: column; align-items: flex-start; gap: 10px; padding: 1rem 0.7rem; }
+            .whisper-section { padding: 1.1rem 0.2rem; }
+            .whisper-model-card { flex-direction: column; align-items: flex-start; gap: 8px; padding: 0.8rem 0.5rem; }
         }
     </style>
 </head>
@@ -326,8 +359,18 @@
             </div>
         </section>
         <section id="settingsPanel" style="display:none; background:none; box-shadow:none; padding:0; max-width:none;">
-            <div class="whisper-settings-root">
-                <div class="whisper-settings-title">Whisper: управление моделями</div>
+            <div class="whisper-section">
+                <div class="whisper-section-title">Доступные модели для скачивания</div>
+                <div class="whisper-download-row">
+                    <label for="modelSelect">Модель:</label>
+                    <select id="modelSelect"></select>
+                    <button id="downloadBtn" class="whisper-download-btn">Скачать</button>
+                    <div id="downloadProgress" class="whisper-progress"></div>
+                </div>
+            </div>
+            <hr class="whisper-divider" />
+            <div class="whisper-section">
+                <div class="whisper-section-title">Скачанные модели</div>
                 <div id="modelsList" class="whisper-models-list"></div>
                 <div id="emptyList" class="whisper-empty" style="display:none;"></div>
             </div>
@@ -408,25 +451,74 @@
     editorTab.addEventListener('click', showEditor);
     settingsTab.addEventListener('click', showSettings);
 
-    // --- Whisper Models Management (из settings.html, обновлённый макет) ---
+    // --- JS: Whisper Settings ---
+    let availableModels = [];
+    let downloadedModels = [];
+    let activeModel = localStorage.getItem('whisperModel') || null;
+    let downloading = false;
     let downloadingModel = null;
-    let cancelControllers = {};
+
     async function loadModels() {
-        const modelsList = document.getElementById('modelsList');
-        const emptyList = document.getElementById('emptyList');
-        modelsList.innerHTML = '';
-        emptyList.style.display = 'none';
+        const modelSelect = document.getElementById('modelSelect');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadProgressDiv = document.getElementById('downloadProgress');
+        const modelsListDiv = document.getElementById('modelsList');
+        const emptyListDiv = document.getElementById('emptyList');
+        modelSelect.innerHTML = '';
+        modelsListDiv.innerHTML = '';
+        emptyListDiv.style.display = 'none';
         try {
-            const models = await window.go.main.App.ListModels();
-            if (!Array.isArray(models) || models.length === 0) {
-                emptyList.style.display = 'block';
-                emptyList.textContent = 'Нет доступных моделей Whisper';
+            const all = await window.go.main.App.ListModels();
+            availableModels = all.filter(m => !m.local);
+            downloadedModels = all.filter(m => m.local);
+            // --- Render download block ---
+            if (availableModels.length === 0) {
+                modelSelect.disabled = true;
+                downloadBtn.disabled = true;
+                downloadBtn.textContent = 'Нет новых моделей';
+            } else {
+                modelSelect.disabled = false;
+                downloadBtn.disabled = false;
+                availableModels.forEach((m, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = m.name;
+                    opt.textContent = `${m.name} (${(m.size/1024/1024).toFixed(0)} MB)`;
+                    modelSelect.appendChild(opt);
+                });
+                modelSelect.value = availableModels[0].name;
+                downloadBtn.textContent = 'Скачать';
+            }
+            // --- Download button logic ---
+            let selectedModel = modelSelect.value;
+            modelSelect.onchange = e => { selectedModel = e.target.value; };
+            downloadBtn.onclick = async () => {
+                if (!selectedModel || downloading) return;
+                downloading = true;
+                downloadBtn.disabled = true;
+                downloadBtn.textContent = 'Загрузка...';
+                downloadProgressDiv.style.display = 'block';
+                downloadProgressDiv.textContent = '0%';
+                try {
+                    await window.go.main.App.DownloadModel(selectedModel);
+                } catch (e) {
+                    downloadProgressDiv.textContent = 'Ошибка загрузки';
+                } finally {
+                    downloading = false;
+                    loadModels();
+                    downloadProgressDiv.style.display = 'none';
+                }
+            };
+            // --- Render downloaded models ---
+            if (downloadedModels.length === 0) {
+                emptyListDiv.style.display = 'block';
+                emptyListDiv.textContent = 'Нет загруженных моделей Whisper';
                 return;
             }
-            let selectedModel = localStorage.getItem('whisperModel') || models[0].name;
-            models.forEach(model => {
+            emptyListDiv.style.display = 'none';
+            downloadedModels.forEach(model => {
                 const card = document.createElement('div');
                 card.className = 'whisper-model-card';
+                // Левая часть: иконка + radio + имя + статус
                 const info = document.createElement('div');
                 info.className = 'whisper-model-info';
                 const icon = document.createElement('span');
@@ -434,86 +526,57 @@
                 icon.innerHTML = `<svg fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><rect x='3' y='7' width='18' height='13' rx='3'/><path d='M16 3v4M8 3v4'/></svg>`;
                 const radio = document.createElement('input');
                 radio.type = 'radio';
-                radio.name = 'model';
+                radio.name = 'activeModel';
                 radio.value = model.name;
-                radio.checked = selectedModel === model.name;
+                radio.checked = activeModel === model.name;
                 radio.className = 'whisper-radio';
                 radio.onchange = () => {
-                    localStorage.setItem('whisperModel', model.name);
+                    activeModel = model.name;
+                    localStorage.setItem('whisperModel', activeModel);
                     loadModels();
                 };
                 const name = document.createElement('span');
-                name.textContent = model.name;
+                name.textContent = model.filename || model.name;
                 name.className = 'whisper-model-name';
                 const status = document.createElement('span');
-                status.className = 'whisper-model-status ' + (model.local ? 'downloaded' : '');
-                status.innerHTML = model.local
-                    ? `(скачано${model.size ? ', ' + (model.size/1024/1024).toFixed(0) + ' MB' : ''})`
-                    : '(не скачано)';
+                status.className = 'whisper-model-status downloaded';
+                status.innerHTML = `${(model.size/1024/1024).toFixed(0)} MB`;
                 info.appendChild(icon);
                 info.appendChild(radio);
                 info.appendChild(name);
                 info.appendChild(status);
+                // Правая часть: удалить
                 const actions = document.createElement('div');
                 actions.className = 'whisper-model-actions';
-                const btn = document.createElement('button');
-                btn.className = 'whisper-btn';
-                btn.textContent = model.local ? '✓' : (downloadingModel === model.name ? 'Отмена' : 'Скачать');
-                btn.disabled = !!model.local;
-                btn.id = `dl_${model.name}`;
-                const progress = document.createElement('div');
-                progress.id = `progress_${model.name}`;
-                progress.className = 'whisper-progress';
-                if (!model.local) {
-                    if (downloadingModel === model.name) {
-                        btn.onclick = async () => {
-                            // Попытка отмены через Go, если реализовано
-                            if (window.go.main.App.CancelDownloadModel) {
-                                try { await window.go.main.App.CancelDownloadModel(model.name); } catch(e){}
-                            }
-                            downloadingModel = null;
-                            loadModels();
-                        };
-                    } else {
-                        btn.onclick = async () => {
-                            btn.textContent = 'Отмена';
-                            downloadingModel = model.name;
-                            progress.style.display = 'block';
-                            progress.style.width = '0%';
-                            progress.textContent = '0%';
-                            try {
-                                await window.go.main.App.DownloadModel(model.name);
-                            } finally {
-                                downloadingModel = null;
-                                loadModels();
-                            }
-                        };
+                const btnDelete = document.createElement('button');
+                btnDelete.className = 'whisper-btn-delete';
+                btnDelete.textContent = 'Удалить';
+                btnDelete.onclick = async (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Удалить модель ${model.filename || model.name}?`)) {
+                        await window.go.main.App.DeleteModel(model.name);
+                        loadModels();
                     }
-                }
-                actions.appendChild(btn);
-                actions.appendChild(progress);
+                };
+                actions.appendChild(btnDelete);
                 card.appendChild(info);
                 card.appendChild(actions);
-                modelsList.appendChild(card);
+                modelsListDiv.appendChild(card);
             });
-        } catch (err) {
-            emptyList.style.display = 'block';
-            emptyList.textContent = 'Ошибка загрузки моделей Whisper';
-            console.error('Ошибка загрузки моделей Whisper:', err);
+        } catch (e) {
+            emptyListDiv.style.display = 'block';
+            emptyListDiv.textContent = 'Ошибка загрузки моделей Whisper';
         }
     }
     // --- Прогресс загрузки ---
     window.runtime && window.runtime.EventsOn && window.runtime.EventsOn("modelDownloadProgress", data => {
-        const progress = document.getElementById(`progress_${data.name}`);
-        const btn = document.getElementById(`dl_${data.name}`);
-        if (progress) {
-            progress.style.display = 'block';
-            progress.style.width = data.percent + '%';
-            progress.textContent = data.percent + '%';
-            if (data.percent >= 100 && btn) {
-                btn.textContent = '✓';
-                btn.disabled = true;
-                progress.style.display = 'none';
+        const downloadProgressDiv = document.getElementById('downloadProgress');
+        if (!downloadProgressDiv) return;
+        if (data.name === document.getElementById('modelSelect').value) {
+            downloadProgressDiv.style.display = 'block';
+            downloadProgressDiv.textContent = data.percent + '%';
+            if (data.percent >= 100) {
+                downloadProgressDiv.style.display = 'none';
             }
         }
     });
