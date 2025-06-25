@@ -2,10 +2,7 @@ package main
 
 import (
 	"context"
-<<<<<<< HEAD
 	"encoding/json"
-=======
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 	"errors"
 	"fmt"
 	"io"
@@ -13,27 +10,18 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-<<<<<<< HEAD
 	"os/user"
 	"path/filepath"
 	"sort"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-=======
-	"path/filepath"
-	"sort"
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 )
 
 // App struct
 type App struct {
-<<<<<<< HEAD
 	ctx       context.Context
 	modelsDir string
-=======
-	ctx context.Context
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 }
 
 // NewApp creates a new App application struct
@@ -45,7 +33,6 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-<<<<<<< HEAD
 	// Определяем каталог для хранения моделей в каталоге пользователя
 	if usr, err := user.Current(); err == nil {
 		a.modelsDir = filepath.Join(usr.HomeDir, ".submagic", "models")
@@ -55,8 +42,6 @@ func (a *App) startup(ctx context.Context) {
 	}
 	_ = os.MkdirAll(a.modelsDir, 0755)
 	log.Println("[startup] modelsDir:", a.modelsDir)
-=======
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 }
 
 // Greet returns a greeting for the given name
@@ -102,11 +87,7 @@ func (a *App) ListModels() ([]map[string]interface{}, error) {
 		return models[i].Info.Size < models[j].Info.Size
 	})
 	for _, m := range models {
-<<<<<<< HEAD
 		localPath := filepath.Join(a.modelsDir, filepath.Base(m.Info.URL))
-=======
-		localPath := filepath.Join("models", filepath.Base(m.Info.URL))
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 		info, err := os.Stat(localPath)
 		size := int64(0)
 		if err == nil {
@@ -124,7 +105,6 @@ func (a *App) ListModels() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
-<<<<<<< HEAD
 // ProgressWriter для отслеживания прогресса загрузки
 type ProgressWriter struct {
 	total      int64
@@ -162,16 +142,12 @@ func (pw *ProgressWriter) Write(p []byte) (int, error) {
 }
 
 func (a *App) DownloadModel(name string) (string, error) {
-=======
-func (a *App) DownloadModel(ctx context.Context, name string) (string, error) {
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 	log.Printf("[DownloadModel] Запрошено скачивание модели: %s\n", name)
 	info, ok := whisperModels[name]
 	if !ok {
 		log.Printf("[DownloadModel] Неизвестная модель: %s\n", name)
 		return "", errors.New("unknown model")
 	}
-<<<<<<< HEAD
 
 	localPath := filepath.Join(a.modelsDir, filepath.Base(info.URL))
 
@@ -180,27 +156,19 @@ func (a *App) DownloadModel(ctx context.Context, name string) (string, error) {
 		return localPath, nil
 	}
 
-=======
-	os.MkdirAll("models", 0755)
-	localPath := filepath.Join("models", filepath.Base(info.URL))
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 	out, err := os.Create(localPath)
 	if err != nil {
 		log.Printf("[DownloadModel] Ошибка создания файла: %v\n", err)
 		return "", err
 	}
 	defer out.Close()
-<<<<<<< HEAD
 
-=======
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 	resp, err := http.Get(info.URL)
 	if err != nil {
 		log.Printf("[DownloadModel] Ошибка http.Get: %v\n", err)
 		return "", err
 	}
 	defer resp.Body.Close()
-<<<<<<< HEAD
 
 	// Создаем ProgressWriter для отслеживания прогресса
 	pw := &ProgressWriter{
@@ -227,18 +195,10 @@ func (a *App) DownloadModel(ctx context.Context, name string) (string, error) {
 		"total":   pw.total,
 	})
 
-=======
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Printf("[DownloadModel] Ошибка копирования: %v\n", err)
-		return "", err
-	}
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 	log.Printf("[DownloadModel] Модель %s успешно скачана\n", name)
 	return localPath, nil
 }
 
-<<<<<<< HEAD
 // DeleteModel удаляет скачанную модель
 func (a *App) DeleteModel(name string) error {
 	log.Printf("[DeleteModel] =======================================\n")
@@ -420,8 +380,6 @@ func (a *App) GetActiveModel() (string, error) {
 	return settings.ActiveModel, nil
 }
 
-=======
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 func (a *App) GenerateSubtitles(ctx context.Context, filePath string, lang string, modelName string) (string, error) {
 	log.Printf("[GenerateSubtitles] Генерация субтитров: файл=%s, язык=%s, модель=%s\n", filePath, lang, modelName)
 	info, ok := whisperModels[modelName]
@@ -429,11 +387,7 @@ func (a *App) GenerateSubtitles(ctx context.Context, filePath string, lang strin
 		log.Printf("[GenerateSubtitles] Неизвестная модель: %s\n", modelName)
 		return "", errors.New("unknown model")
 	}
-<<<<<<< HEAD
 	modelPath := filepath.Join(a.modelsDir, filepath.Base(info.URL))
-=======
-	modelPath := filepath.Join("models", filepath.Base(info.URL))
->>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 	if _, err := os.Stat(modelPath); err != nil {
 		log.Printf("[GenerateSubtitles] Модель не найдена: %s\n", modelPath)
 		return "", errors.New("Модель не найдена. Скачайте её в настройках.")
