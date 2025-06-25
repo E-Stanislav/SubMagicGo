@@ -1,17 +1,60 @@
-body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #f7f7f7; color: #222; margin: 0; padding: 0; }
+body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #f7f7f7; color: #222; margin: 0; padding: 0; height: 100%; }
 header { width: 100%; display: flex; justify-content: center; margin-bottom: 1.5rem; }
-main { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: none; margin: 0 auto; padding: clamp(1rem, 2vw, 2rem); min-height: 0; }
-.container { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; height: 100%; max-width: none; margin: 0 auto; width: 100%; }
+main { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: none; margin: 0 auto; padding: clamp(1rem, 2vw, 2rem); min-height: 0; height: 100%; }
+.container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  height: 100%;
+  max-width: none;
+  margin: 0 auto;
+  width: 100%;
+}
 .menu-btn { background: #ececec; border: none; border-radius: 12px 12px 0 0; padding: .5rem 1.25rem; font-size: 1.05rem; color: #6b7280; font-weight: 500; cursor: pointer; transition: background .24s, color .24s; }
 .menu-btn.active { background: #fff; color: #222; font-weight: 600; }
-#editorPanel { position: relative; width: 100%; min-height: 520px; flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 0; max-width: none; }
-.dropzone { position: static; width: 95vw; max-width: none; min-width: 0; margin: 0 auto; height: 100%; min-height: 320px; z-index: 2; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; background: #fff; border: 2.5px dashed #dadada; border-radius: 12px; color: #6b7280; transition: all .24s; cursor: pointer; user-select: none; font-size: 1.45rem; padding: 3rem 2rem; box-sizing: border-box; }
-.dropzone.dragover { border-color: #4fa3ff; color: #4fa3ff; background: #e3f1ff; box-shadow: 0 4px 18px #0002; }
+#editorPanel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  max-width: none;
+  min-height: 0;
+}
+.dropzone {
+  width: 95%;
+  height: 95%;
+  max-width: 95%;
+  max-height: 95%;
+  min-width: 95%;
+  min-height: 95%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  background: #fff;
+  border: 2.5px dashed #dadada;
+  border-radius: 1px;
+  color: #6b7280;
+  transition: all .24s;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.45rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+.dropzone.dragover { border-color: #4fa3ff; color: #4fa3ff; background: #e3f1ff; box-shadow: 0 1px 1px #0002; }
 #video, #videoTitle, #controls { position: relative; z-index: 3; width: 100%; max-width: 95vw; margin: 0 auto; }
 video { width: 100%; height: auto; border-radius: 12px; background: #000; display: block; }
 .controls { display: grid; grid-auto-flow: column; gap: clamp(.5rem, 1.5vw, 1.25rem); justify-content: center; margin-top: 2rem; width: 100%; max-width: 95vw; }
 @media (max-width: 700px) { .controls { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); } }
-.btn { appearance: none; background: #4fa3ff; color: #fff; border: none; border-radius: 12px; padding: .9rem 1.5rem; font-size: 1rem; font-weight: 600; letter-spacing: .3px; box-shadow: 0 2px 12px #0001; cursor: pointer; transition: background .24s, transform .24s, box-shadow .24s; }
+.btn { appearance: none; background: #4fa3ff; color: #fff; border: none; border-radius: 12px; padding: .9rem 1.5rem; font-size: 1rem; font-weight: 600; letter-spacing: .3px; box-shadow: 0 2px 1px #0001; cursor: pointer; transition: background .24s, transform .24s, box-shadow .24s; }
 .btn:hover, .btn:focus-visible { background: #3578c6; transform: translateY(-2px) scale(1.03); box-shadow: 0 4px 18px #0002; }
 .btn--danger { background: #e74c3c; }
 .btn--danger:hover, .btn--danger:focus-visible { background: #c0392b; }
