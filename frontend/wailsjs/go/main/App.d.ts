@@ -8,6 +8,8 @@ export function DownloadModel(arg1:string):Promise<string>;
 
 export function GenerateSubtitles(arg1:context.Context,arg2:string,arg3:string,arg4:string):Promise<string>;
 
+export function GenerateSubtitlesChunk(arg1:context.Context,arg2:string,arg3:string,arg4:string,arg5:number,arg6:number):Promise<string>;
+
 export function GetActiveModel():Promise<string>;
 
 export function Greet(arg1:string):Promise<string>;

@@ -8,3 +8,5 @@
 .env
 *.app
 models/*.bin
+whisper.cpp/
+node_modules/

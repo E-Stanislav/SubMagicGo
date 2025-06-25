@@ -55,17 +55,51 @@ type WhisperModelInfo struct {
 }
 
 var whisperModels = map[string]WhisperModelInfo{
-	"tiny":             {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin", 75 * 1024 * 1024},
-	"tiny.en":          {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin", 75 * 1024 * 1024},
-	"base":             {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin", 142 * 1024 * 1024},
-	"base.en":          {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin", 142 * 1024 * 1024},
-	"small":            {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin", 466 * 1024 * 1024},
-	"small.en":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin", 466 * 1024 * 1024},
-	"medium":           {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin", 1531 * 1024 * 1024},
-	"medium.en":        {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.en.bin", 1531 * 1024 * 1024},
-	"large-v1":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v1.bin", 2900 * 1024 * 1024},
-	"large-v2":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v2.bin", 2900 * 1024 * 1024},
-	"large-v3":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin", 2902 * 1024 * 1024},
+	// Tiny models (smallest)
+	"tiny-q5_1":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny-q5_1.bin", 31 * 1024 * 1024},
+	"tiny.en-q5_1": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en-q5_1.bin", 31 * 1024 * 1024},
+	"tiny-q8_0":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny-q8_0.bin", 42 * 1024 * 1024},
+	"tiny.en-q8_0": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en-q8_0.bin", 42 * 1024 * 1024},
+	"tiny":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin", 75 * 1024 * 1024},
+	"tiny.en":      {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin", 75 * 1024 * 1024},
+
+	// Base models
+	"base-q5_1":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base-q5_1.bin", 57 * 1024 * 1024},
+	"base.en-q5_1": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en-q5_1.bin", 57 * 1024 * 1024},
+	"base-q8_0":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base-q8_0.bin", 78 * 1024 * 1024},
+	"base.en-q8_0": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en-q8_0.bin", 78 * 1024 * 1024},
+	"base":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin", 142 * 1024 * 1024},
+	"base.en":      {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin", 142 * 1024 * 1024},
+
+	// Small models
+	"small-q5_1":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q5_1.bin", 181 * 1024 * 1024},
+	"small.en-q5_1": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en-q5_1.bin", 181 * 1024 * 1024},
+	"small-q8_0":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q8_0.bin", 252 * 1024 * 1024},
+	"small.en-q8_0": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en-q8_0.bin", 252 * 1024 * 1024},
+	"small":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin", 466 * 1024 * 1024},
+	"small.en":      {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin", 466 * 1024 * 1024},
+	"small.en-tdrz": {"https://huggingface.co/akashmjn/tinydiarize-whisper.cpp/resolve/main/ggml-small.en-tdrz.bin", 465 * 1024 * 1024},
+
+	// Medium models
+	"medium-q5_0":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium-q5_0.bin", 514 * 1024 * 1024},
+	"medium.en-q5_0": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.en-q5_0.bin", 514 * 1024 * 1024},
+	"medium-q8_0":    {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium-q8_0.bin", 785 * 1024 * 1024},
+	"medium.en-q8_0": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.en-q8_0.bin", 785 * 1024 * 1024},
+	"medium":         {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin", 1531 * 1024 * 1024},
+	"medium.en":      {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.en.bin", 1531 * 1024 * 1024},
+
+	// Large models
+	"large-v2-q5_0":       {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v2-q5_0.bin", 1100 * 1024 * 1024},
+	"large-v3-q5_0":       {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin", 1100 * 1024 * 1024},
+	"large-v2-q8_0":       {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v2-q8_0.bin", 1500 * 1024 * 1024},
+	"large-v3-turbo":      {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin", 1500 * 1024 * 1024},
+	"large-v3-turbo-q5_0": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin", 547 * 1024 * 1024},
+	"large-v3-turbo-q8_0": {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q8_0.bin", 834 * 1024 * 1024},
+	"large-v1":            {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v1.bin", 2900 * 1024 * 1024},
+	"large-v2":            {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v2.bin", 2900 * 1024 * 1024},
+	"large-v3":            {"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin", 2902 * 1024 * 1024},
+
+	// Distil models (alternative, faster)
 	"distil-medium.en": {"https://huggingface.co/distil-whisper/distil-medium.en/resolve/main/ggml-distil-medium.en.bin", 418 * 1024 * 1024},
 	"distil-large-v2":  {"https://huggingface.co/distil-whisper/distil-large-v2/resolve/main/ggml-distil-large-v2.bin", 1100 * 1024 * 1024},
 }
@@ -413,5 +447,55 @@ func (a *App) GenerateSubtitles(ctx context.Context, filePath string, lang strin
 		return "", err
 	}
 	log.Printf("[GenerateSubtitles] Субтитры успешно сгенерированы для файла: %s\n", filePath)
+	return string(srtData), nil
+}
+
+// GenerateSubtitlesChunk генерирует субтитры для куска видео (startSec-endSec)
+func (a *App) GenerateSubtitlesChunk(ctx context.Context, filePath string, lang string, modelName string, startSec, endSec int) (string, error) {
+	log.Printf("[GenerateSubtitlesChunk] Генерация субтитров: файл=%s, язык=%s, модель=%s, start=%d, end=%d\n", filePath, lang, modelName, startSec, endSec)
+	info, ok := whisperModels[modelName]
+	if !ok {
+		log.Printf("[GenerateSubtitlesChunk] Неизвестная модель: %s\n", modelName)
+		return "", errors.New("unknown model")
+	}
+	modelPath := filepath.Join(a.modelsDir, filepath.Base(info.URL))
+	if _, err := os.Stat(modelPath); err != nil {
+		log.Printf("[GenerateSubtitlesChunk] Модель не найдена: %s\n", modelPath)
+		return "", errors.New("Модель не найдена. Скачайте её в настройках.")
+	}
+	if lang == "" {
+		lang = "ru"
+	}
+	// Нарезаем кусок видео через ffmpeg
+	tmpDir := os.TempDir()
+	tmpChunk := filepath.Join(tmpDir, fmt.Sprintf("submagic_chunk_%d_%d.mp4", startSec, endSec))
+	_ = os.Remove(tmpChunk)
+	dur := endSec - startSec
+	ffmpegPath := "ffmpeg"
+	ffArgs := []string{"-y", "-i", filePath, "-ss", fmt.Sprintf("%d", startSec), "-t", fmt.Sprintf("%d", dur), "-c:v", "copy", "-c:a", "copy", tmpChunk}
+	cmdFfmpeg := exec.Command(ffmpegPath, ffArgs...)
+	ffmpegOut, err := cmdFfmpeg.CombinedOutput()
+	if err != nil {
+		log.Printf("[GenerateSubtitlesChunk] ffmpeg error: %v, out: %s\n", err, string(ffmpegOut))
+		return "", fmt.Errorf("ffmpeg error: %v, out: %s", err, string(ffmpegOut))
+	}
+	// Генерируем субтитры для куска
+	whisperPath := "./whisper-cli"
+	outSRT := tmpChunk + ".srt"
+	_ = os.Remove(outSRT)
+	cmd := exec.Command(whisperPath, "-m", modelPath, "-f", tmpChunk, "-otxt", "-osrt", "-l", lang)
+	err = cmd.Run()
+	if err != nil {
+		log.Printf("[GenerateSubtitlesChunk] Ошибка запуска whisper-cli: %v\n", err)
+		return "", err
+	}
+	srtData, err := os.ReadFile(outSRT)
+	if err != nil {
+		log.Printf("[GenerateSubtitlesChunk] Ошибка чтения SRT: %v\n", err)
+		return "", err
+	}
+	_ = os.Remove(tmpChunk)
+	_ = os.Remove(outSRT)
+	log.Printf("[GenerateSubtitlesChunk] Субтитры успешно сгенерированы для куска: %d-%d\n", startSec, endSec)
 	return string(srtData), nil
 }

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>SubMagic - Video Subtitle Generator</title>
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    #subtitleOverlay {
+      position: absolute;
+      left: 0; right: 0; bottom: 8%;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: 2.1rem;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #000a, 0 0 2px #000a;
+      pointer-events: none;
+      z-index: 10;
+      padding: 0 2vw;
+      line-height: 1.25;
+      transition: opacity 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <button class="menu-btn active" type="button">Редактор</button>
+      <button class="menu-btn" type="button">Настройки</button>
+    </nav>
+  </header>
+  <main>
+    <div class="container">
+      <section id="editorPanel">
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Перетащите файл или нажмите для выбора">
+          <span>Перетащите видеофайл сюда<br>или нажмите, чтобы выбрать</span>
+        </div>
+        <input id="fileInput" type="file" accept="video/*" class="sr-only"/>
+        <video id="video" controls style="display:none;" tabindex="0"></video>
+        <div id="subtitleOverlay" style="display:none;"></div>
+        <p id="videoTitle" style="display:none; margin-top:1rem; font-weight:500; text-align:center;"></p>
+        <div id="controls" class="controls" style="display:none;">
+          <button id="openBtn" class="btn" type="button">Открыть</button>
+          <button id="playPauseBtn" class="btn" type="button">▶</button>
+          <button id="subBtn" class="btn" type="button">Создать субтитры</button>
+          <button id="exportBtn" class="btn" type="button" style="display:none;">Экспорт SRT</button>
+          <button id="closeMediaBtn" class="btn btn--danger" type="button">Закрыть медиа</button>
+        </div>
+      </section>
+      
+      <section id="settingsPanel" style="display:none;">
+        <div class="whisper-section">
+          <div class="whisper-section-title">Доступные модели для скачивания</div>
+          <div class="whisper-download-row">
+            <label for="modelSelect">Модель:</label>
+            <select id="modelSelect">
+              <option value="">Выберите модель...</option>
+            </select>
+            <button id="downloadBtn" class="whisper-download-btn">Скачать</button>
+            <div id="downloadProgress" class="whisper-progress"></div>
+          </div>
+        </div>
+        <hr class="whisper-divider" />
+        <div class="whisper-section">
+          <div class="whisper-section-title">Скачанные модели</div>
+          <div id="modelsList" class="whisper-models-list"></div>
+          <div id="emptyList" class="whisper-empty" style="display:none;">Нет загруженных моделей Whisper</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal for confirmations -->
+  <div id="deleteConfirmModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:#0007; z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#fff; color:#222; border-radius:12px; box-shadow:0 4px 24px #0003; padding:2rem 2.5rem; min-width:320px; max-width:90vw; text-align:center;">
+      <div id="deleteConfirmText" style="font-size:1.1rem; margin-bottom:1.5rem;"></div>
+      <button id="deleteConfirmYes" style="background:#e74c3c; color:#fff; border:none; border-radius:8px; padding:0.5em 1.5em; font-size:1rem; cursor:pointer; margin-right:10px;">Да</button>
+      <button id="deleteConfirmNo" style="background:#95a5a6; color:#fff; border:none; border-radius:8px; padding:0.5em 1.5em; font-size:1rem; cursor:pointer;">Нет</button>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html> 

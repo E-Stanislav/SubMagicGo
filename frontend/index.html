@@ -406,6 +406,21 @@
             .whisper-section { padding: 1.1rem 0.2rem; }
             .whisper-model-card { flex-direction: column; align-items: flex-start; gap: 8px; padding: 0.8rem 0.5rem; }
         }
+        #subtitleOverlay {
+            position: absolute;
+            left: 0; right: 0; bottom: 8%;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 2.1rem;
+            font-weight: 700;
+            text-shadow: 0 2px 8px #000a, 0 0 2px #000a;
+            pointer-events: none;
+            z-index: 10;
+            padding: 0 2vw;
+            line-height: 1.25;
+            transition: opacity 0.2s;
+        }
     </style>
 </head>
 <body>
@@ -418,11 +433,12 @@
 <main>
     <div class="container">
         <section id="editorPanel">
-            <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Перетащите файл или нажмите для выбора">
+            <div id="dropzone" class="dropzone --wails-drop-target" tabindex="0" role="button" aria-label="Перетащите файл или нажмите для выбора">
                 <span>Перетащите видеофайл сюда<br>или нажмите, чтобы выбрать</span>
             </div>
             <input id="fileInput" type="file" accept="video/*" class="sr-only"/>
             <video id="video" controls style="display:none;" tabindex="0"></video>
+            <div id="subtitleOverlay" style="display:none;"></div>
             <p id="videoTitle" style="display:none; margin-top:1rem; font-weight:500; text-align:center;"></p>
             <div id="controls" class="controls" style="display:none;">
                 <button id="openBtn" class="btn" type="button">Открыть</button>
@@ -470,25 +486,305 @@
     playPauseBtn.addEventListener("click", () => video.paused ? video.play() : video.pause());
     video.addEventListener("play", () => playPauseBtn.textContent = "⏸");
     video.addEventListener("pause", () => playPauseBtn.textContent = "▶");
-    openBtn.addEventListener("click", () => fileInput.click());
-    fileInput.addEventListener("change", e => e.target.files[0] && loadVideo(e.target.files[0]));
-    function loadVideo(file) {
-        currentFilePath = file.path || null;
-        video.src = URL.createObjectURL(file);
-        video.play();
-        videoTitle.textContent = file.name;
-        show(video); show(videoTitle); show(controls); hide(dropzone);
+    openBtn.addEventListener("click", async () => {
+        if (window.runtime && window.runtime.OpenFileDialog) {
+            const result = await window.runtime.OpenFileDialog({
+                title: "Выберите видео",
+                filters: [{ name: "Видео", extensions: ["mp4", "mkv", "avi", "mov", "wmv", "flv", "webm"] }]
+            });
+            if (result && result.length > 0) {
+                loadVideo({ path: result[0], name: result[0].split(/[\\/]/).pop() });
+            }
+        } else {
+            fileInput.click();
+        }
+    });
+    fileInput.addEventListener("change", async e => {
+        if (e.target.files[0]) {
+            // В Wails приложении нужно использовать Wails API для получения пути к файлу
+            if (window.runtime && window.runtime.OpenFileDialog) {
+                const result = await window.runtime.OpenFileDialog({
+                    title: "Выберите видео",
+                    filters: [{ name: "Видео", extensions: ["mp4", "mkv", "avi", "mov", "wmv", "flv", "webm"] }]
+                });
+                if (result && result.length > 0) {
+                    loadVideo({ path: result[0], name: result[0].split(/[\\/]/).pop() });
+                }
+            } else {
+                // Fallback для браузера (не будет работать с Wails API)
+                console.warn("Wails API недоступен, файл не будет работать с субтитрами");
+                loadVideo(e.target.files[0]);
+            }
+        }
+    });
+
+    // === OnFileDrop: Регистрируем ПЕРВЫМ ===
+    if (window.runtime && window.runtime.OnFileDrop) {
+        console.log('OnFileDrop handler registered');
+        
+        // Dropzone only - основной обработчик
+        window.runtime.OnFileDrop((x, y, paths) => {
+            console.log('[OnFileDrop DROPZONE] called, x:', x, 'y:', y, 'paths:', paths);
+            if (paths && paths.length > 0) {
+                console.log('Processing dropped file:', paths[0]);
+                loadVideo({ path: paths[0], name: paths[0].split(/[\\/]/).pop() });
+            } else {
+                console.warn('OnFileDrop called but no paths provided');
+            }
+        }, true);
+        
+        // Global handler для диагностики
+        window.runtime.OnFileDrop((x, y, paths) => {
+            console.log('[OnFileDrop GLOBAL] called, x:', x, 'y:', y, 'paths:', paths);
+            if (paths && paths.length > 0) {
+                console.log('Global handler processing file:', paths[0]);
+                loadVideo({ path: paths[0], name: paths[0].split(/[\\/]/).pop() });
+            }
+        }, false);
+        
+        // Добавляем стандартный drop как fallback
+        dropzone.addEventListener("drop", e => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Standard drop event on dropzone');
+            
+            // Если Wails OnFileDrop не сработал, попробуем использовать стандартный drop
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                console.log('File dropped via standard API:', file.name);
+                
+                // Показываем сообщение о том, что нужно использовать кнопку "Открыть"
+                showErrorDialog(`Файл "${file.name}" перетащен, но drag & drop не работает корректно. Пожалуйста, используйте кнопку "Открыть" для выбора файла.`);
+            }
+        });
+        
+    } else {
+        console.warn('Wails OnFileDrop not available, using standard drop');
+        // Fallback для браузера
+        dropzone.addEventListener("drop", e => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Standard drop handler called');
+            if (e.dataTransfer.files[0]) {
+                console.log('File dropped:', e.dataTransfer.files[0].name);
+                // В браузере мы не можем получить полный путь, но можем показать предупреждение
+                showErrorDialog("В браузерном режиме drag & drop не поддерживается. Используйте кнопку 'Открыть'.");
+            }
+        });
     }
-    ["dragenter","dragover"].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add("dragover"); }));
-    ["dragleave","drop"].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove("dragover"); }));
-    dropzone.addEventListener("drop", e => e.dataTransfer.files[0] && loadVideo(e.dataTransfer.files[0]));
-    dropzone.addEventListener("click", () => fileInput.click());
+    
+    // Обработчики для визуальной обратной связи
+    ["dragenter","dragover"].forEach(ev => {
+        dropzone.addEventListener(ev, e => { 
+            e.preventDefault(); 
+            e.stopPropagation();
+            dropzone.classList.add("dragover"); 
+        });
+    });
+    
+    ["dragleave"].forEach(ev => {
+        dropzone.addEventListener(ev, e => { 
+            e.preventDefault(); 
+            e.stopPropagation();
+            dropzone.classList.remove("dragover"); 
+        });
+    });
+    
+    // Обработчик клика по dropzone
+    dropzone.addEventListener("click", () => {
+        console.log('Dropzone clicked, opening file dialog');
+        fileInput.click();
+    });
+    function loadVideo(file) {
+        console.log('loadVideo called with file:', file, 'file.path:', file.path, 'file.name:', file.name);
+        
+        // Проверяем, есть ли путь к файлу
+        if (!file.path) {
+            console.error('File path is missing! File object:', file);
+            showErrorDialog("Ошибка: не удалось получить путь к файлу. Попробуйте выбрать файл через кнопку 'Открыть'.");
+            return;
+        }
+        
+        currentFilePath = file.path;
+        console.log('currentFilePath set to:', currentFilePath);
+        
+        // Проверяем, что путь не пустой
+        if (!currentFilePath || currentFilePath.trim() === '') {
+            console.error('currentFilePath is empty or invalid:', currentFilePath);
+            showErrorDialog("Ошибка: неверный путь к файлу.");
+            return;
+        }
+        
+        // Проверяем расширение файла
+        const fileName = file.name || file.path.split(/[\\/]/).pop();
+        const fileExtension = fileName.toLowerCase().split('.').pop();
+        const supportedFormats = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+        
+        if (!supportedFormats.includes(fileExtension)) {
+            console.warn('Unsupported file format:', fileExtension);
+            showErrorDialog(`Неподдерживаемый формат файла: .${fileExtension}. Поддерживаемые форматы: ${supportedFormats.join(', ')}`);
+            return;
+        }
+        
+        try {
+            console.log('Setting video source to:', currentFilePath);
+            video.src = currentFilePath;
+            videoTitle.textContent = fileName;
+            
+            // Добавляем обработчик ошибок для видео
+            video.onerror = (e) => {
+                console.error('Video loading error:', e);
+                console.error('Video error details:', video.error);
+                showErrorDialog("Ошибка загрузки видео. Проверьте, что файл существует и поддерживается.");
+                // Сбрасываем состояние
+                currentFilePath = null;
+                hide(video);
+                hide(videoTitle);
+                hide(controls);
+                show(dropzone);
+            };
+            
+            video.onloadeddata = () => {
+                console.log('Video loaded successfully, duration:', video.duration);
+                show(video); 
+                show(videoTitle); 
+                show(controls); 
+                hide(dropzone);
+            };
+            
+            video.onloadstart = () => {
+                console.log('Video loading started');
+            };
+            
+            video.oncanplay = () => {
+                console.log('Video can start playing');
+            };
+            
+        } catch (error) {
+            console.error('Error in loadVideo:', error);
+            showErrorDialog("Ошибка при загрузке видео: " + error.message);
+            // Сбрасываем состояние при ошибке
+            currentFilePath = null;
+        }
+    }
+    function showErrorDialog(message) {
+        console.log("showErrorDialog called with:", message);
+        if (!message) return;
+        // Если есть Wails runtime, используем MessageDialog (если появится в будущем)
+        if (window.runtime && window.runtime.MessageDialog) {
+            window.runtime.MessageDialog({
+                type: 'error',
+                title: 'Ошибка',
+                message: message
+            });
+        } else {
+            // Кастомный модал поверх всего
+            let modal = document.getElementById('errorModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'errorModal';
+                modal.style = 'position:fixed;left:0;top:0;width:100vw;height:100vh;background:#0007;z-index:99999;display:flex;align-items:center;justify-content:center;';
+                modal.innerHTML = `<div style=\"background:#fff;color:#222;border-radius:12px;box-shadow:0 4px 24px #0003;padding:2rem 2.5rem;min-width:320px;max-width:90vw;text-align:center;\">\n                <div id=\"errorModalText\" style=\"font-size:1.1rem;margin-bottom:1.5rem;\"></div>\n                <button id=\"errorModalOk\" style=\"background:#4fa3ff;color:#fff;border:none;border-radius:8px;padding:0.5em 1.5em;font-size:1rem;cursor:pointer;\">OK</button>\n            </div>`;
+                document.body.appendChild(modal);
+            }
+            document.getElementById('errorModalText').textContent = message;
+            modal.style.display = 'flex';
+            // Усиливаю обработчик: всегда переназначаю
+            const okBtn = document.getElementById('errorModalOk');
+            if (okBtn) {
+                okBtn.onclick = () => { modal.style.display = 'none'; };
+            }
+        }
+    }
     subBtn.addEventListener("click", async () => {
-        if (!currentFilePath) { alert("Сначала выберите видео!"); return; }
-        subBtn.disabled = true; subBtn.textContent = "Генерация...";
-        try { await window.go.main.App.GenerateSubtitles(currentFilePath, "ru", selectedModel); show(exportBtn); }
-        catch (err) { alert("Ошибка генерации субтитров: " + err); }
-        subBtn.disabled = false; subBtn.textContent = "Создать субтитры";
+        console.log("currentFilePath on subBtn click:", currentFilePath);
+        
+        // Проверяем, выбран ли файл
+        if (!currentFilePath) { 
+            showErrorDialog("Сначала выберите видео! Используйте кнопку 'Открыть' или перетащите файл.");
+            return; 
+        }
+        
+        // Проверяем, что файл действительно существует
+        if (!currentFilePath.trim()) {
+            showErrorDialog("Ошибка: путь к файлу пустой. Попробуйте выбрать файл заново.");
+            return;
+        }
+        
+        console.log("Starting subtitle generation for file:", currentFilePath);
+        
+        subBtn.disabled = true; 
+        subBtn.textContent = "Генерация...";
+        
+        const overlay = document.getElementById("subtitleOverlay");
+        overlay.style.display = "";
+        
+        let chunkSec = 10;
+        let lang = "ru";
+        let model = selectedModel;
+        let duration = Math.floor(video.duration);
+        let currentChunk = 0;
+        let subtitles = [];
+        
+        function showSubtitle(text) {
+            overlay.textContent = text;
+            overlay.style.opacity = text ? "1" : "0";
+        }
+        
+        async function fetchAndShowChunk(chunkIdx) {
+            let start = chunkIdx * chunkSec;
+            let end = Math.min(start + chunkSec, duration);
+            if (start >= duration) { 
+                showSubtitle(""); 
+                return; 
+            }
+            
+            console.log(`Generating chunk ${chunkIdx}: ${start}s - ${end}s`);
+            
+            try {
+                let srt = await window.go.main.App.GenerateSubtitlesChunk(currentFilePath, lang, model, start, end);
+                let text = srt.split("\n").filter(line => line && !/^\d+$/.test(line) && !/^\d{2}:\d{2}/.test(line)).join(" ");
+                subtitles[chunkIdx] = text;
+                showSubtitle(text);
+                console.log(`Chunk ${chunkIdx} generated successfully`);
+            } catch (err) {
+                console.error(`Error generating chunk ${chunkIdx}:`, err);
+                showErrorDialog("Ошибка генерации субтитров: " + (err && err.message ? err.message : err));
+                showSubtitle("[Ошибка субтитров]");
+            }
+        }
+        
+        let interval = setInterval(() => {
+            if (video.paused || video.ended) return;
+            let chunkIdx = Math.floor(video.currentTime / chunkSec);
+            if (subtitles[chunkIdx] === undefined) {
+                fetchAndShowChunk(chunkIdx);
+            } else {
+                showSubtitle(subtitles[chunkIdx]);
+            }
+        }, 500);
+        
+        video.addEventListener("ended", () => { 
+            showSubtitle(""); 
+            clearInterval(interval); 
+        });
+        
+        closeBtn.addEventListener("click", () => { 
+            showSubtitle(""); 
+            clearInterval(interval); 
+            overlay.style.display = "none"; 
+        });
+        
+        // Генерируем первый чанк
+        try {
+            await fetchAndShowChunk(0);
+        } catch (error) {
+            console.error("Error generating first chunk:", error);
+            showErrorDialog("Ошибка при запуске генерации субтитров: " + error.message);
+        }
+        
+        subBtn.disabled = false; 
+        subBtn.textContent = "Создать субтитры";
     });
     exportBtn.addEventListener("click", () => {
         if (!currentFilePath) return;
@@ -555,6 +851,7 @@
             // Сортируем по expectedSize (байты)
             availableModels = all.filter(m => !m.local).sort((a, b) => (a.expectedSize||a.size||0) - (b.expectedSize||b.size||0));
             downloadedModels = all.filter(m => m.local).sort((a, b) => (a.expectedSize||a.size||0) - (b.expectedSize||b.size||0));
+            
             // --- Render download block ---
             if (availableModels.length === 0) {
                 modelSelect.disabled = true;
@@ -563,15 +860,42 @@
             } else {
                 modelSelect.disabled = false;
                 downloadBtn.disabled = false;
-                availableModels.forEach((m, i) => {
-                    const opt = document.createElement('option');
-                    opt.value = m.name;
-                    opt.textContent = `${m.name} (${formatModelSize(m.expectedSize||m.size)})`;
-                    modelSelect.appendChild(opt);
+                
+                // Группируем модели по размеру для лучшей организации
+                const modelGroups = {
+                    'tiny': availableModels.filter(m => m.name.includes('tiny')),
+                    'base': availableModels.filter(m => m.name.includes('base') && !m.name.includes('distil')),
+                    'small': availableModels.filter(m => m.name.includes('small')),
+                    'medium': availableModels.filter(m => m.name.includes('medium') && !m.name.includes('distil')),
+                    'large': availableModels.filter(m => m.name.includes('large')),
+                    'distil': availableModels.filter(m => m.name.includes('distil'))
+                };
+                
+                // Добавляем опции в select с группировкой
+                Object.entries(modelGroups).forEach(([groupName, models]) => {
+                    if (models.length > 0) {
+                        // Добавляем разделитель для группы
+                        const groupOpt = document.createElement('option');
+                        groupOpt.disabled = true;
+                        groupOpt.textContent = `--- ${groupName.toUpperCase()} ---`;
+                        modelSelect.appendChild(groupOpt);
+                        
+                        // Добавляем модели группы
+                        models.forEach(m => {
+                            const opt = document.createElement('option');
+                            opt.value = m.name;
+                            const size = formatModelSize(m.expectedSize||m.size);
+                            const lang = m.name.includes('.en') ? ' (EN)' : m.name.includes('distil') ? ' (Fast)' : '';
+                            opt.textContent = `${m.name}${lang} (${size})`;
+                            modelSelect.appendChild(opt);
+                        });
+                    }
                 });
+                
                 modelSelect.value = availableModels[0].name;
                 downloadBtn.textContent = 'Скачать';
             }
+            
             // --- Download button logic ---
             let selectedModel = modelSelect.value;
             modelSelect.onchange = e => { selectedModel = e.target.value; };
@@ -592,6 +916,7 @@
                     downloadProgressDiv.style.display = 'none';
                 }
             };
+            
             // --- Render downloaded models ---
             if (downloadedModels.length === 0) {
                 emptyListDiv.style.display = 'block';
@@ -599,54 +924,85 @@
                 return;
             }
             emptyListDiv.style.display = 'none';
-            downloadedModels.forEach(model => {
-                const card = document.createElement('div');
-                card.className = 'whisper-model-card';
-                // Левая часть: иконка + radio + имя + статус
-                const info = document.createElement('div');
-                info.className = 'whisper-model-info';
-                const icon = document.createElement('span');
-                icon.className = 'whisper-model-icon';
-                icon.innerHTML = `<svg fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><rect x='3' y='7' width='18' height='13' rx='3'/><path d='M16 3v4M8 3v4'/></svg>`;
-                const radio = document.createElement('input');
-                radio.type = 'radio';
-                radio.name = 'activeModel';
-                radio.value = model.name;
-                radio.checked = activeModel === model.name;
-                radio.className = 'whisper-radio';
-                radio.onchange = () => {
-                    activeModel = model.name;
-                    localStorage.setItem('whisperModel', activeModel);
-                    loadModels();
-                };
-                const name = document.createElement('span');
-                name.textContent = model.filename || model.name;
-                name.className = 'whisper-model-name';
-                const status = document.createElement('span');
-                status.className = 'whisper-model-status downloaded';
-                status.innerHTML = formatModelSize(model.expectedSize||model.size);
-                info.appendChild(icon);
-                info.appendChild(radio);
-                info.appendChild(name);
-                info.appendChild(status);
-                // Правая часть: удалить
-                const actions = document.createElement('div');
-                actions.className = 'whisper-model-actions';
-                const btnDelete = document.createElement('button');
-                btnDelete.className = 'whisper-btn-delete';
-                btnDelete.textContent = 'Удалить';
-                btnDelete.onclick = async (e) => {
-                    e.stopPropagation();
-                    const confirmed = await customConfirm(`Удалить модель ${model.filename || model.name}?`);
-                    if (confirmed) {
-                        await window.go.main.App.DeleteModel(model.name);
-                        loadModels();
-                    }
-                };
-                actions.appendChild(btnDelete);
-                card.appendChild(info);
-                card.appendChild(actions);
-                modelsListDiv.appendChild(card);
+            
+            // Группируем скачанные модели по размеру
+            const downloadedGroups = {
+                'tiny': downloadedModels.filter(m => m.name.includes('tiny')),
+                'base': downloadedModels.filter(m => m.name.includes('base') && !m.name.includes('distil')),
+                'small': downloadedModels.filter(m => m.name.includes('small')),
+                'medium': downloadedModels.filter(m => m.name.includes('medium') && !m.name.includes('distil')),
+                'large': downloadedModels.filter(m => m.name.includes('large')),
+                'distil': downloadedModels.filter(m => m.name.includes('distil'))
+            };
+            
+            Object.entries(downloadedGroups).forEach(([groupName, models]) => {
+                if (models.length > 0) {
+                    // Добавляем заголовок группы
+                    const groupHeader = document.createElement('div');
+                    groupHeader.className = 'whisper-group-header';
+                    groupHeader.textContent = groupName.toUpperCase();
+                    modelsListDiv.appendChild(groupHeader);
+                    
+                    // Добавляем модели группы
+                    models.forEach(model => {
+                        const card = document.createElement('div');
+                        card.className = 'whisper-model-card';
+                        
+                        // Левая часть: иконка + radio + имя + статус
+                        const info = document.createElement('div');
+                        info.className = 'whisper-model-info';
+                        
+                        const icon = document.createElement('span');
+                        icon.className = 'whisper-model-icon';
+                        icon.innerHTML = `<svg fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><rect x='3' y='7' width='18' height='13' rx='3'/><path d='M16 3v4M8 3v4'/></svg>`;
+                        
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = 'activeModel';
+                        radio.value = model.name;
+                        radio.checked = activeModel === model.name;
+                        radio.className = 'whisper-radio';
+                        radio.onchange = () => {
+                            activeModel = model.name;
+                            localStorage.setItem('whisperModel', activeModel);
+                            loadModels();
+                        };
+                        
+                        const name = document.createElement('span');
+                        name.textContent = model.filename || model.name;
+                        name.className = 'whisper-model-name';
+                        
+                        const status = document.createElement('span');
+                        status.className = 'whisper-model-status downloaded';
+                        status.innerHTML = formatModelSize(model.expectedSize||model.size);
+                        
+                        info.appendChild(icon);
+                        info.appendChild(radio);
+                        info.appendChild(name);
+                        info.appendChild(status);
+                        
+                        // Правая часть: удалить
+                        const actions = document.createElement('div');
+                        actions.className = 'whisper-model-actions';
+                        
+                        const btnDelete = document.createElement('button');
+                        btnDelete.className = 'whisper-btn-delete';
+                        btnDelete.textContent = 'Удалить';
+                        btnDelete.onclick = async (e) => {
+                            e.stopPropagation();
+                            const confirmed = await customConfirm(`Удалить модель ${model.filename || model.name}?`);
+                            if (confirmed) {
+                                await window.go.main.App.DeleteModel(model.name);
+                                loadModels();
+                            }
+                        };
+                        
+                        actions.appendChild(btnDelete);
+                        card.appendChild(info);
+                        card.appendChild(actions);
+                        modelsListDiv.appendChild(card);
+                    });
+                }
             });
         } catch (e) {
             emptyListDiv.style.display = 'block';
@@ -664,9 +1020,9 @@
         const downloadProgressDiv = document.getElementById('downloadProgress');
         if (!downloadProgressDiv) return;
         if (data.name === document.getElementById('modelSelect').value) {
-            downloadProgressDiv.style.display = 'block';
-            downloadProgressDiv.textContent = data.percent + '%';
-            if (data.percent >= 100) {
+        downloadProgressDiv.style.display = 'block';
+        downloadProgressDiv.textContent = data.percent + '%';
+        if (data.percent >= 100) {
                 downloadProgressDiv.style.display = 'none';
             }
         }

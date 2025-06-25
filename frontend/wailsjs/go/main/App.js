@@ -14,6 +14,10 @@ export function GenerateSubtitles(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['GenerateSubtitles'](arg1, arg2, arg3, arg4);
 }
 
+export function GenerateSubtitlesChunk(arg1, arg2, arg3, arg4, arg5, arg6) {
+  return window['go']['main']['App']['GenerateSubtitlesChunk'](arg1, arg2, arg3, arg4, arg5, arg6);
+}
+
 export function GetActiveModel() {
   return window['go']['main']['App']['GetActiveModel']();
 }

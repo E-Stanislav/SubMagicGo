@@ -1,0 +1,46 @@
+{
+  "name": "submagic-electron",
+  "version": "1.0.0",
+  "description": "SubMagic - Video subtitle generator using Whisper",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": ["electron", "whisper", "subtitles", "video"],
+  "author": "E-Stanislav",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.submagic.app",
+    "productName": "SubMagic",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "whisper-cli",
+      "models/**/*",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.video",
+      "icon": "renderer/assets/icon.icns"
+    },
+    "win": {
+      "icon": "renderer/assets/icon.ico"
+    },
+    "linux": {
+      "icon": "renderer/assets/icon.png"
+    }
+  }
+} 
