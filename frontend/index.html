@@ -206,6 +206,7 @@
         .whisper-download-row select {
             background: var(--surface-alt);
             color: var(--text);
+<<<<<<< HEAD
             border: 2px solid transparent;
             border-radius: 12px;
             padding: 12px 16px;
@@ -247,6 +248,13 @@
         .whisper-download-row select option:focus {
             background: var(--primary);
             color: #fff;
+=======
+            border: none;
+            border-radius: 7px;
+            padding: 7px 16px;
+            font-size: 1.08rem;
+            outline: none;
+>>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
         }
         .whisper-download-btn {
             background: var(--primary);
@@ -413,6 +421,7 @@
         </section>
     </div>
 </main>
+<<<<<<< HEAD
 <!-- Кастомный модал для подтверждения удаления -->
 <div id="deleteConfirmModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:#0005; z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#fff; color:#222; border-radius:12px; box-shadow:0 4px 24px #0003; padding:2rem 2.5rem; min-width:320px; max-width:90vw; text-align:center;">
@@ -421,6 +430,8 @@
     <button id="deleteConfirmNo" style="background:#e0e7ef; color:#222; border:none; border-radius:8px; padding:0.5em 1.5em; font-size:1rem; cursor:pointer;">Отмена</button>
   </div>
 </div>
+=======
+>>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 <script>
     const $ = id => document.getElementById(id);
     const video = $("video"), openBtn = $("openBtn"), playPauseBtn = $("playPauseBtn"),
@@ -511,6 +522,7 @@
         modelSelect.innerHTML = '';
         modelsListDiv.innerHTML = '';
         emptyListDiv.style.display = 'none';
+<<<<<<< HEAD
         
         // Загружаем активную модель с сервера
         try {
@@ -523,6 +535,8 @@
             console.log('Ошибка загрузки активной модели:', e);
         }
         
+=======
+>>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
         try {
             const all = await window.go.main.App.ListModels();
             // Сортируем по expectedSize (байты)
@@ -587,6 +601,7 @@
                 radio.value = model.name;
                 radio.checked = activeModel === model.name;
                 radio.className = 'whisper-radio';
+<<<<<<< HEAD
                 radio.onchange = async () => {
                     activeModel = model.name;
                     localStorage.setItem('whisperModel', activeModel);
@@ -597,6 +612,11 @@
                         console.error('Ошибка установки активной модели:', e);
                     }
                     selectedModel = activeModel; // Обновляем глобальную переменную
+=======
+                radio.onchange = () => {
+                    activeModel = model.name;
+                    localStorage.setItem('whisperModel', activeModel);
+>>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
                     loadModels();
                 };
                 const name = document.createElement('span');
@@ -617,6 +637,7 @@
                 btnDelete.textContent = 'Удалить';
                 btnDelete.onclick = async (e) => {
                     e.stopPropagation();
+<<<<<<< HEAD
                     console.log('=== НАЧАЛО УДАЛЕНИЯ МОДЕЛИ ===');
                     console.log('Событие клика по кнопке удаления зарегистрировано');
                     console.log('Модель для удаления:', {
@@ -665,6 +686,11 @@
                     } else {
                         console.log('Пользователь отменил удаление модели:', model.name);
                         console.log('=== УДАЛЕНИЕ ОТМЕНЕНО ===');
+=======
+                    if (confirm(`Удалить модель ${model.filename || model.name}?`)) {
+                        await window.go.main.App.DeleteModel(model.name);
+                        loadModels();
+>>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
                     }
                 };
                 actions.appendChild(btnDelete);
@@ -686,6 +712,7 @@
     // --- Прогресс загрузки ---
     window.runtime && window.runtime.EventsOn && window.runtime.EventsOn("modelDownloadProgress", data => {
         const downloadProgressDiv = document.getElementById('downloadProgress');
+<<<<<<< HEAD
         const downloadBtn = document.getElementById('downloadBtn');
         if (!downloadProgressDiv) return;
         
@@ -726,6 +753,17 @@
             no.addEventListener('click', onNo);
         });
     }
+=======
+        if (!downloadProgressDiv) return;
+        if (data.name === document.getElementById('modelSelect').value) {
+            downloadProgressDiv.style.display = 'block';
+            downloadProgressDiv.textContent = data.percent + '%';
+            if (data.percent >= 100) {
+                downloadProgressDiv.style.display = 'none';
+            }
+        }
+    });
+>>>>>>> 1c16b9c57654212a0011165ba3c6458c1639bb75
 </script>
 </body>
 </html>

@@ -6,4 +6,5 @@
 .idea/
 .vscode/
 .env
-*.appmodels/*.bin
+*.app
+models/*.bin
