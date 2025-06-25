@@ -206,11 +206,47 @@
         .whisper-download-row select {
             background: var(--surface-alt);
             color: var(--text);
-            border: none;
-            border-radius: 7px;
-            padding: 7px 16px;
-            font-size: 1.08rem;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            font-weight: 500;
             outline: none;
+            min-width: 200px;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg fill='%234fa3ff' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+        .whisper-download-row select:hover {
+            border-color: var(--primary);
+            background-color: color-mix(in srgb, var(--primary) 5%, var(--surface-alt));
+            box-shadow: var(--shadow-md);
+        }
+        .whisper-download-row select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+        }
+        .whisper-download-row select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .whisper-download-row select option {
+            background: var(--surface);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 2px 0;
+        }
+        .whisper-download-row select option:hover, 
+        .whisper-download-row select option:focus {
+            background: var(--primary);
+            color: #fff;
         }
         .whisper-download-btn {
             background: var(--primary);
@@ -377,6 +413,14 @@
         </section>
     </div>
 </main>
+<!-- Кастомный модал для подтверждения удаления -->
+<div id="deleteConfirmModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:#0005; z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#fff; color:#222; border-radius:12px; box-shadow:0 4px 24px #0003; padding:2rem 2.5rem; min-width:320px; max-width:90vw; text-align:center;">
+    <div id="deleteConfirmText" style="font-size:1.1rem; margin-bottom:1.5rem;"></div>
+    <button id="deleteConfirmYes" style="background:#e74c3c; color:#fff; border:none; border-radius:8px; padding:0.5em 1.5em; font-size:1rem; margin-right:1.2em; cursor:pointer;">Удалить</button>
+    <button id="deleteConfirmNo" style="background:#e0e7ef; color:#222; border:none; border-radius:8px; padding:0.5em 1.5em; font-size:1rem; cursor:pointer;">Отмена</button>
+  </div>
+</div>
 <script>
     const $ = id => document.getElementById(id);
     const video = $("video"), openBtn = $("openBtn"), playPauseBtn = $("playPauseBtn"),
@@ -467,6 +511,18 @@
         modelSelect.innerHTML = '';
         modelsListDiv.innerHTML = '';
         emptyListDiv.style.display = 'none';
+        
+        // Загружаем активную модель с сервера
+        try {
+            const serverActiveModel = await window.go.main.App.GetActiveModel();
+            if (serverActiveModel) {
+                activeModel = serverActiveModel;
+                localStorage.setItem('whisperModel', activeModel);
+            }
+        } catch (e) {
+            console.log('Ошибка загрузки активной модели:', e);
+        }
+        
         try {
             const all = await window.go.main.App.ListModels();
             // Сортируем по expectedSize (байты)
@@ -531,9 +587,16 @@
                 radio.value = model.name;
                 radio.checked = activeModel === model.name;
                 radio.className = 'whisper-radio';
-                radio.onchange = () => {
+                radio.onchange = async () => {
                     activeModel = model.name;
                     localStorage.setItem('whisperModel', activeModel);
+                    // Уведомляем бэкенд о смене активной модели
+                    try {
+                        await window.go.main.App.SetActiveModel(activeModel);
+                    } catch (e) {
+                        console.error('Ошибка установки активной модели:', e);
+                    }
+                    selectedModel = activeModel; // Обновляем глобальную переменную
                     loadModels();
                 };
                 const name = document.createElement('span');
@@ -554,9 +617,54 @@
                 btnDelete.textContent = 'Удалить';
                 btnDelete.onclick = async (e) => {
                     e.stopPropagation();
-                    if (confirm(`Удалить модель ${model.filename || model.name}?`)) {
-                        await window.go.main.App.DeleteModel(model.name);
-                        loadModels();
+                    console.log('=== НАЧАЛО УДАЛЕНИЯ МОДЕЛИ ===');
+                    console.log('Событие клика по кнопке удаления зарегистрировано');
+                    console.log('Модель для удаления:', {
+                        name: model.name,
+                        filename: model.filename,
+                        size: model.size,
+                        expectedSize: model.expectedSize
+                    });
+                    
+                    const confirmed = await customConfirm(`Удалить модель ${model.filename || model.name}?`);
+                    if (confirmed) {
+                        console.log('Пользователь подтвердил удаление модели:', model.name);
+                        try {
+                            console.log('Отключение кнопки и изменение текста...');
+                            btnDelete.disabled = true;
+                            btnDelete.textContent = 'Удаление...';
+                            
+                            console.log('Вызов window.go.main.App.DeleteModel с параметром:', model.name);
+                            console.log('Проверка доступности API:', typeof window.go?.main?.App?.DeleteModel);
+                            
+                            if (!window.go?.main?.App?.DeleteModel) {
+                                throw new Error('API функция DeleteModel недоступна');
+                            }
+                            
+                            const result = await window.go.main.App.DeleteModel(model.name);
+                            console.log('Результат вызова DeleteModel:', result);
+                            console.log('Модель успешно удалена:', model.name);
+                            
+                            console.log('Обновление списка моделей...');
+                            loadModels();
+                            console.log('=== УДАЛЕНИЕ ЗАВЕРШЕНО УСПЕШНО ===');
+                        } catch (error) {
+                            console.error('=== ОШИБКА ПРИ УДАЛЕНИИ МОДЕЛИ ===');
+                            console.error('Детали ошибки:', error);
+                            console.error('Тип ошибки:', typeof error);
+                            console.error('Сообщение ошибки:', error.message || error.toString());
+                            console.error('Stack trace:', error.stack);
+                            
+                            alert('Ошибка при удалении модели: ' + (error.message || error.toString()));
+                            
+                            console.log('Восстановление состояния кнопки...');
+                            btnDelete.disabled = false;
+                            btnDelete.textContent = 'Удалить';
+                            console.error('=== КОНЕЦ ОБРАБОТКИ ОШИБКИ ===');
+                        }
+                    } else {
+                        console.log('Пользователь отменил удаление модели:', model.name);
+                        console.log('=== УДАЛЕНИЕ ОТМЕНЕНО ===');
                     }
                 };
                 actions.appendChild(btnDelete);
@@ -578,15 +686,46 @@
     // --- Прогресс загрузки ---
     window.runtime && window.runtime.EventsOn && window.runtime.EventsOn("modelDownloadProgress", data => {
         const downloadProgressDiv = document.getElementById('downloadProgress');
+        const downloadBtn = document.getElementById('downloadBtn');
         if (!downloadProgressDiv) return;
-        if (data.name === document.getElementById('modelSelect').value) {
-            downloadProgressDiv.style.display = 'block';
-            downloadProgressDiv.textContent = data.percent + '%';
-            if (data.percent >= 100) {
+        
+        // Обновляем прогресс бар
+        downloadProgressDiv.style.display = 'block';
+        downloadProgressDiv.textContent = data.percent + '%';
+        downloadProgressDiv.style.width = data.percent + '%';
+        
+        // Когда загрузка завершена
+        if (data.percent >= 100) {
+            setTimeout(() => {
                 downloadProgressDiv.style.display = 'none';
-            }
+                downloadBtn.textContent = 'Скачать';
+                downloadBtn.disabled = false;
+                downloading = false;
+                loadModels(); // Обновляем список моделей
+            }, 500);
         }
     });
+    // --- Кастомный confirm ---
+    function customConfirm(message) {
+        return new Promise(resolve => {
+            const modal = document.getElementById('deleteConfirmModal');
+            const text = document.getElementById('deleteConfirmText');
+            const yes = document.getElementById('deleteConfirmYes');
+            const no = document.getElementById('deleteConfirmNo');
+            text.textContent = message;
+            modal.style.display = 'flex';
+            function cleanup(result) {
+                modal.style.display = 'none';
+                yes.removeEventListener('click', onYes);
+                no.removeEventListener('click', onNo);
+                resolve(result);
+            }
+            function onYes() { cleanup(true); }
+            function onNo() { cleanup(false); }
+            yes.addEventListener('click', onYes);
+            no.addEventListener('click', onNo);
+        });
+    }
 </script>
 </body>
 </html>
