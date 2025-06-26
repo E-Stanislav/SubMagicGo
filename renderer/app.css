@@ -1,17 +1,18 @@
 body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #f7f7f7; color: #222; margin: 0; padding: 0; height: 100%; }
-header { width: 100%; display: flex; justify-content: center; margin-bottom: 1.5rem; }
+header { width: 100%; display: flex; justify-content: center; margin-bottom: 0.75rem; }
 main { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: none; margin: 0 auto; padding: 0; min-height: 0; height: 100%; }
 .container {
   flex: 1 1 auto;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   min-height: 0;
   height: 100%;
   max-width: none;
   margin: 0 auto;
   width: 100%;
+  padding-top: 1rem;
 }
 .menu-btn { background: #ececec; border: none; border-radius: 12px 12px 0 0; padding: .5rem 1.25rem; font-size: 1.05rem; color: #6b7280; font-weight: 500; cursor: pointer; transition: background .24s, color .24s; }
 .menu-btn.active { background: #fff; color: #222; font-weight: 600; }
@@ -27,12 +28,11 @@ main { flex: 1; display: flex; flex-direction: column; align-items: center; widt
   min-height: 0;
 }
 .dropzone {
-  width: 95%;
-  height: 95%;
-  max-width: 95%;
-  max-height: 95%;
-  min-width: 95%;
-  min-height: 95%;
+  width: 100%;
+  height: auto;
+  max-width: 900px;
+  min-height: 260px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,7 +52,7 @@ main { flex: 1; display: flex; flex-direction: column; align-items: center; widt
 .dropzone.dragover { border-color: #4fa3ff; color: #4fa3ff; background: #e3f1ff; box-shadow: 0 1px 1px #0002; }
 #video, #videoTitle, #controls { position: relative; z-index: 3; width: 100%; max-width: 95vw; margin: 0 auto; }
 video { width: 100%; height: auto; border-radius: 12px; background: #000; display: block; }
-.controls { display: grid; grid-auto-flow: column; gap: clamp(.5rem, 1.5vw, 1.25rem); justify-content: center; margin-top: 2rem; width: 100%; max-width: 95vw; }
+.controls { display: grid; grid-auto-flow: column; gap: clamp(.5rem, 1.5vw, 1.25rem); justify-content: center; margin-top: 1rem; width: 100%; max-width: 95vw; }
 @media (max-width: 700px) { .controls { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); } }
 .btn { appearance: none; background: #4fa3ff; color: #fff; border: none; border-radius: 12px; padding: .9rem 1.5rem; font-size: 1rem; font-weight: 600; letter-spacing: .3px; box-shadow: 0 2px 1px #0001; cursor: pointer; transition: background .24s, transform .24s, box-shadow .24s; }
 .btn:hover, .btn:focus-visible { background: #3578c6; transform: translateY(-2px) scale(1.03); box-shadow: 0 4px 18px #0002; }
@@ -90,4 +90,16 @@ video { width: 100%; height: auto; border-radius: 12px; background: #000; displa
 .whisper-btn-delete { background: #e0e7ef; color: #c0392b; font-size: 0.98rem; font-weight: 600; border-radius: 8px; padding: 0.4em 1.1em; border: none; cursor: pointer; transition: background 0.18s, color 0.18s; }
 .whisper-btn-delete:hover { background: #fbeaea; color: #a8231a; }
 .whisper-empty { color: #6b7280; font-size: 1.08rem; text-align: center; margin-top: 1.5rem; }
-@media (max-width: 700px) { .whisper-section { padding: 1.1rem 0.2rem; } .whisper-model-card { flex-direction: column; align-items: flex-start; gap: 8px; padding: 0.8rem 0.5rem; } } 
+@media (max-width: 700px) { .whisper-section { padding: 1.1rem 0.2rem; } .whisper-model-card { flex-direction: column; align-items: flex-start; gap: 8px; padding: 0.8rem 0.5rem; } }
+
+/* === UI/UX Tweaks (2025-06-26) === */
+html, body {
+  height: 100%;
+}
+
+nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 700px) { .controls { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); } } 
